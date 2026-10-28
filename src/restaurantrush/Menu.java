@@ -20,9 +20,18 @@ public class Menu {
     }
 
     private void initializeDefaultMenu() {
-        items.add(new MenuItem("Salad", 900, 1));
-        items.add(new MenuItem("Burger", 1500, 1));
-        items.add(new MenuItem("Pasta", 1800, 2));
+        MenuItem salad = new MenuItem("Salad", 900, 1);
+        MenuItem burger = new MenuItem("Burger", 1500, 1);
+        MenuItem pasta = new MenuItem("Pasta", 1800, 2);
+
+        items.add(salad);
+        items.add(burger);
+        items.add(pasta);
+
+        // Add composite combo options
+        items.add(new ComboMeal(salad, burger));
+        items.add(new ComboMeal(salad, pasta));
+        items.add(new ComboMeal(burger, pasta));
     }
 
     public List<MenuItem> getItems() {

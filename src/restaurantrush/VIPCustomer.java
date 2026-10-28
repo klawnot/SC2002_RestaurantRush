@@ -5,17 +5,15 @@ public class VIPCustomer extends Customer {
         super(id, arrivalTurn);
     }
 
-    // VIPs are more patient and lose only 5 satisfaction points per turn
     @Override
     public int getSatisfactionLossPerTurn() {
         return 5;
     }
 
-    // VIPs receive a 10% discount on the base item price
+    // Bill calculation defers to Customer to read the locked price recorded at order time
     @Override
     public int calculateBill() {
-        int basePrice = super.calculateBill();
-        return (int) Math.round(basePrice * 0.90);
+        return super.calculateBill();
     }
 
     @Override

@@ -4,15 +4,21 @@ public class Order {
     private final String orderId;
     private final String customerId;
     private final MenuItem menuItem;
+    private final int finalPriceCents;
     private int unitsRemaining;
     private OrderStatus status;
 
-    public Order(String orderId, String customerId, MenuItem menuItem) {
+    public Order(String orderId, String customerId, MenuItem menuItem, int finalPriceCents) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.menuItem = menuItem;
+        this.finalPriceCents = finalPriceCents;
         this.unitsRemaining = menuItem.getPrepUnitsRequired();
         this.status = OrderStatus.ORDERED;
+    }
+
+    public Order(String orderId, String customerId, MenuItem menuItem) {
+        this(orderId, customerId, menuItem, menuItem.getPriceCents());
     }
 
     public String getOrderId() {
@@ -25,6 +31,10 @@ public class Order {
 
     public MenuItem getMenuItem() {
         return menuItem;
+    }
+
+    public int getFinalPriceCents() {
+        return finalPriceCents;
     }
 
     public int getUnitsRemaining() {

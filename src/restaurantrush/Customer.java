@@ -57,25 +57,22 @@ public class Customer {
         this.order = order;
     }
 
-    // Regular customers lose 8 satisfaction per turn while waiting or seated without food
     public int getSatisfactionLossPerTurn() {
         return 8;
     }
 
-    // Regular customers pay full price
+    // Settles the locked final price saved when the order was taken
     public int calculateBill() {
-        if (order == null || order.getMenuItem() == null) {
+        if (order == null) {
             return 0;
         }
-        return order.getMenuItem().getPriceCents();
+        return order.getFinalPriceCents();
     }
 
-    // Customer randomly picks an item from the menu
     public MenuItem chooseFood(Menu menu) {
         return menu.getRandomItem();
     }
 
-    // Reduce satisfaction at end of turn if still waiting for food
     public void applyTurnDecay() {
         if (state == CustomerState.WAITING || state == CustomerState.SEATED) {
             this.satisfaction = Math.max(0, this.satisfaction - getSatisfactionLossPerTurn());
