@@ -63,11 +63,24 @@ public class TurnController {
         view.printEndOfTurnSummary(state);
     }
 
+    // Factory method spawning specialized customer subtypes on specific turns
+    private Customer createCustomer(String id, int turn) {
+        if (turn == 7) {
+            return new VIPCustomer(id, turn);
+        } else if (turn == 13) {
+            return new CriticCustomer(id, turn);
+        } else {
+            return new Customer(id, turn);
+        }
+    }
+
     private void handleArrivals(int turn) {
         if (turn == 1 || turn == 4 || turn == 7 || turn == 10 || turn == 13 || turn == 16) {
-            Customer newCustomer = new Customer("C" + customerCounter++, turn);
+            String customerId = "C" + customerCounter++;
+            Customer newCustomer = createCustomer(customerId, turn);
             state.getWaitingQueue().add(newCustomer);
-            view.printMessage(String.format("Arrival: %s joined the waiting queue.", newCustomer.getId()));
+            view.printMessage(String.format("Arrival: [%s] %s joined the waiting queue.", 
+                    newCustomer.getTypeLabel(), newCustomer.getId()));
         }
     }
 
