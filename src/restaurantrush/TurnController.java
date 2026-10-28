@@ -11,9 +11,9 @@ public class TurnController {
     private final Waiter waiter;
     private final Chef chef;
     private final Cashier cashier;
+    private final Host host;
     private int customerCounter = 1;
 
-    // Prevents customer served in current turn from immediately moving to ready-to-pay
     private Customer customerServedThisTurn = null;
 
     public TurnController(RestaurantState state, RestaurantView view, InputHandler input, Menu menu) {
@@ -24,6 +24,7 @@ public class TurnController {
         this.waiter = new Waiter();
         this.chef = new Chef();
         this.cashier = new Cashier();
+        this.host = new Host();
     }
 
     public void runGame() {
@@ -42,15 +43,18 @@ public class TurnController {
         int turn = state.getCurrentTurn();
         customerServedThisTurn = null;
 
-        // Step 1: Handle scheduled arrivals
+        // Step 1: Arrivals
         handleArrivals(turn);
 
-        // Snapshot dishes that finished cooking in earlier turns
+        // Offer Happy Hour or apply active boost at start of turn
+        handleHappyHourActivation();
+
         List<Order> readyBeforeTurn = getReadyOrdersSnapshot();
 
         view.printStartOfTurn(state, true, true);
 
-        // Steps 2 & 3: Staff actions
+        // Steps 2 & 3: Actions (Host acts before Waiter)
+        handleHostAction();
         handleWaiterAction(readyBeforeTurn);
         handleChefAction();
 
@@ -60,10 +64,12 @@ public class TurnController {
         // Step 5: End-of-turn satisfaction loss and departures
         handleWaitingAndAbandonment();
 
+        // Decrement active Happy Hour duration
+        state.decrementHappyHour();
+
         view.printEndOfTurnSummary(state);
     }
 
-    // Factory method spawning specialized customer subtypes on specific turns
     private Customer createCustomer(String id, int turn) {
         if (turn == 7) {
             return new VIPCustomer(id, turn);
@@ -259,5 +265,60 @@ public class TurnController {
         boolean satisfactionTargetMet = state.getAveragePaidSatisfaction() >= 60.0;
         boolean isVictory = paidTargetMet && revenueTargetMet && satisfactionTargetMet;
         view.printFinalResult(state, isVictory);
+    }
+
+    private void handleHappyHourActivation() {
+        if (state.canActivateHappyHour()) {
+            boolean activate = input.getHappyHourChoice();
+            if (activate) {
+                state.activateHappyHour();
+                view.printMessage(">>> HAPPY HOUR ACTIVATED! <<<");
+            }
+        }
+
+        if (state.isHappyHourActive()) {
+            applyHappyHourSatisfactionBoost();
+        }
+    }
+
+    private void applyHappyHourSatisfactionBoost() {
+        view.printMessage("Happy Hour Boost: Eligible waiting and seated customers recover up to 15 satisfaction.");
+        for (Customer c : state.getWaitingQueue()) {
+            c.setSatisfaction(Math.min(100, c.getSatisfaction() + 15));
+        }
+        for (Table table : state.getTables()) {
+            if (table.isOccupied()) {
+                Customer c = table.getCurrentCustomer();
+                if (c.getState() == CustomerState.SEATED) {
+                    c.setSatisfaction(Math.min(100, c.getSatisfaction() + 15));
+                }
+            }
+        }
+    }
+
+    private void handleHostAction() {
+        if (state.getWaitingQueue().isEmpty()) {
+            return;
+        }
+        List<Integer> freeTableIds = new ArrayList<>();
+        for (Table t : state.getTables()) {
+            if (!t.isOccupied()) {
+                freeTableIds.add(t.getTableId());
+            }
+        }
+        if (freeTableIds.isEmpty()) {
+            return;
+        }
+        int choice = input.getHostChoice(freeTableIds);
+        if (choice > 0) {
+            Customer seated = host.seatCustomer(state, choice);
+            if (seated != null) {
+                view.printMessage(String.format("Host seated Customer %s at Table %d.", seated.getId(), choice));
+            } else {
+                view.printError("Host could not seat customer at Table " + choice);
+            }
+        } else {
+            view.printMessage("Host skipped seating this turn.");
+        }
     }
 }

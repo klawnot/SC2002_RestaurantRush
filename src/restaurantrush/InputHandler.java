@@ -54,4 +54,20 @@ public class InputHandler {
         }
         return activeOrders.get(choice - 1);
     }
+
+    public boolean getHappyHourChoice() {
+        System.out.println("\n--- Happy Hour Promotion ---");
+        System.out.println("Happy Hour is available! (Lasts 2 turns: +15 sat boost, 20% discount on new orders)");
+        int choice = getIntInput("Activate Happy Hour this turn? (1: Yes, 2: No): ", 1, 2);
+        return choice == 1;
+    }
+
+    public int getHostChoice(List<Integer> availableTableIds) {
+        System.out.println("\n--- Host Action ---");
+        System.out.println("0: Skip Host seating");
+        for (int tableId : availableTableIds) {
+            System.out.printf("Table %d: Available%n", tableId);
+        }
+        return getIntInput("Choose table for Host to seat next customer (or 0 to skip): ", 0, 2);
+    }
 }

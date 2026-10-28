@@ -9,12 +9,13 @@ import java.util.Queue;
 public class RestaurantState {
     private int currentTurn;
     private int revenueCents;
-
     private final Queue<Customer> waitingQueue;
     private final List<Table> tables;
     private final List<Order> activeOrders;
     private final List<Customer> paidCustomers;
     private final List<Customer> abandonedCustomers;
+    private boolean happyHourUsed = false;
+    private int happyHourTurnsRemaining = 0;
 
     public RestaurantState() {
         this.currentTurn = 1;
@@ -25,7 +26,6 @@ public class RestaurantState {
         this.paidCustomers = new ArrayList<>();
         this.abandonedCustomers = new ArrayList<>();
 
-        // Required base setting: exactly 2 tables
         tables.add(new Table(1));
         tables.add(new Table(2));
     }
@@ -100,10 +100,6 @@ public class RestaurantState {
         return null;
     }
 
-    /**
-     * Calculates the average satisfaction of paid customers.
-     * Returns -1.0 if no customer has paid yet.
-     */
     public double getAveragePaidSatisfaction() {
         if (paidCustomers.isEmpty()) {
             return -1.0;
@@ -113,5 +109,30 @@ public class RestaurantState {
             totalSatisfaction += c.getSatisfaction();
         }
         return (double) totalSatisfaction / paidCustomers.size();
+    }
+
+    public boolean canActivateHappyHour() {
+        return !happyHourUsed;
+    }
+
+    public void activateHappyHour() {
+        if (!happyHourUsed) {
+            this.happyHourUsed = true;
+            this.happyHourTurnsRemaining = 2;
+        }
+    }
+
+    public boolean isHappyHourActive() {
+        return happyHourTurnsRemaining > 0;
+    }
+
+    public int getHappyHourTurnsRemaining() {
+        return happyHourTurnsRemaining;
+    }
+
+    public void decrementHappyHour() {
+        if (happyHourTurnsRemaining > 0) {
+            happyHourTurnsRemaining--;
+        }
     }
 }

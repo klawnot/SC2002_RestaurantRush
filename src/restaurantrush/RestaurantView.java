@@ -4,16 +4,30 @@ import java.util.List;
 import java.util.Queue;
 
 public class RestaurantView {
+
     public void printStartOfTurn(RestaurantState state, boolean waiterAvailable, boolean chefAvailable) {
         System.out.println("==================================================");
         System.out.printf("--- START OF TURN %d / 18 ---%n", state.getCurrentTurn());
         System.out.println("==================================================");
 
+        // Happy Hour Status Display
+        if (state.isHappyHourActive()) {
+            System.out.printf(">>> HAPPY HOUR ACTIVE! (%d turn%s remaining) - 20%% off new orders <<<%n",
+                    state.getHappyHourTurnsRemaining(),
+                    state.getHappyHourTurnsRemaining() > 1 ? "s" : "");
+        } else if (state.canActivateHappyHour()) {
+            System.out.println("[Happy Hour: Available to activate]");
+        } else {
+            System.out.println("[Happy Hour: Expired / Already Used]");
+        }
+
+        // Revenue and Satisfaction
         double avgSat = state.getAveragePaidSatisfaction();
         String avgSatDisplay = (avgSat < 0) ? "N/A" : String.format("%.2f", avgSat);
         System.out.printf("Revenue: $%.2f | Paid Avg Satisfaction: %s%n", 
                 state.getRevenueCents() / 100.0, avgSatDisplay);
 
+        // Waiting Queue
         Queue<Customer> queue = state.getWaitingQueue();
         System.out.printf("Waiting Queue (%d): ", queue.size());
         if (queue.isEmpty()) {
@@ -25,6 +39,7 @@ public class RestaurantView {
         }
         System.out.println();
 
+        // Tables
         System.out.println("Tables:");
         for (Table table : state.getTables()) {
             if (!table.isOccupied()) {
@@ -32,11 +47,11 @@ public class RestaurantView {
             } else {
                 Customer c = table.getCurrentCustomer();
                 String orderInfo = (c.getOrder() == null) ? "No Order Placed" : c.getOrder().toString();
-                System.out.printf("  Table %d: [%s] Customer %s (Sat: %d, State: %s) | %s%n",
-                        table.getTableId(), c.getTypeLabel(), c.getId(), c.getSatisfaction(), c.getState(), orderInfo);
+                System.out.printf("  Table %d: [%s] Customer %s (Sat: %d, State: %s) | %s%n",table.getTableId(), c.getTypeLabel(), c.getId(), c.getSatisfaction(), c.getState(), orderInfo);
             }
         }
 
+        // Active Orders in Kitchen
         List<Order> orders = state.getActiveOrders();
         System.out.printf("Kitchen Orders (%d):%n", orders.size());
         if (orders.isEmpty()) {
@@ -48,6 +63,7 @@ public class RestaurantView {
             }
         }
 
+        // Staff Tasks Available
         System.out.println("Staff Availability:");
         System.out.printf("  Waiter: %s%n", waiterAvailable ? "Available (Seat / Take Order / Serve)" : "Task Used");
         System.out.printf("  Chef:   %s%n", chefAvailable ? "Available (Cook 1 Unit)" : "Task Used");
@@ -73,7 +89,7 @@ public class RestaurantView {
         System.out.println("                  GAME OVER                       ");
         System.out.println("==================================================");
         System.out.println(isVictory ? "RESULT: VICTORY!" : "RESULT: DEFEAT");
-        
+
         int paidCount = state.getPaidCustomers().size();
         int revenueCents = state.getRevenueCents();
         double avgSat = state.getAveragePaidSatisfaction();
