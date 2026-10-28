@@ -62,7 +62,7 @@ public class Customer {
         return 8;
     }
 
-    // Default bill calculation; regular customers pay full price
+    // Regular customers pay full price
     public int calculateBill() {
         if (order == null || order.getMenuItem() == null) {
             return 0;
@@ -83,6 +83,10 @@ public class Customer {
                 this.state = CustomerState.ABANDONED;
             }
         }
+    }
+
+    public String getTypeLabel() {
+        return "Standard";
     }
 
     @Override
