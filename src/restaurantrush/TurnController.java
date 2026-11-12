@@ -283,16 +283,22 @@ public class TurnController {
         if (freeTableIds.isEmpty()) {
             return;
         }
-        int choice = input.getHostChoice(freeTableIds);
-        if (choice > 0) {
-            Customer seated = host.seatCustomer(state, choice);
-            if (seated != null) {
-                view.printMessage(String.format("Host seated Customer %s at Table %d.", seated.getId(), choice));
+        // Invalid table choices re-prompt without using up the Host's action
+        boolean actionTaken = false;
+        while (!actionTaken) {
+            int choice = input.getHostChoice(freeTableIds);
+            if (choice == 0) {
+                view.printMessage("Host skipped seating this turn.");
+                actionTaken = true;
             } else {
-                view.printError("Host could not seat customer at Table " + choice);
+                Customer seated = host.seatCustomer(state, choice);
+                if (seated != null) {
+                    view.printMessage(String.format("Host seated Customer %s at Table %d.", seated.getId(), choice));
+                    actionTaken = true;
+                } else {
+                    view.printError("Table " + choice + " is already occupied. Choose a free table or 0 to skip.");
+                }
             }
-        } else {
-            view.printMessage("Host skipped seating this turn.");
         }
     }
 }
