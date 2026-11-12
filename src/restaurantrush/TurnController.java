@@ -205,6 +205,13 @@ public class TurnController {
     }
 
     private void handleEatingAndPayment() {
+        // Cashier runs first so a customer who becomes READY_TO_PAY this turn pays next turn at the earliest
+        Customer paidCustomer = cashier.processPayment(state);
+        if (paidCustomer != null) {
+            view.printMessage(String.format("Cashier collected payment from Customer %s. Table is now vacant.",
+                    paidCustomer.getId()));
+        }
+
         for (Table table : state.getTables()) {
             if (table.isOccupied()) {
                 Customer c = table.getCurrentCustomer();
@@ -213,12 +220,6 @@ public class TurnController {
                     view.printMessage(String.format("Customer %s finished eating and is now READY_TO_PAY.", c.getId()));
                 }
             }
-        }
-
-        Customer paidCustomer = cashier.processPayment(state);
-        if (paidCustomer != null) {
-            view.printMessage(String.format("Cashier collected payment from Customer %s. Table is now vacant.",
-                    paidCustomer.getId()));
         }
     }
 
