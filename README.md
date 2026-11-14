@@ -107,3 +107,14 @@ Because one random number is drawn each time a Regular or VIP order is taken, th
 
 * **Deleted Files:**
   * None.
+
+## Video Timestamps
+- **00:00** : Introduction
+- **00:50** : Gameplay Demonstration: Compiling and launching of the game
+- **01:30** : Gameplay Demonstration: A dish going through READY → SERVED → payment states
+- **02:30** : Gameplay Demonstration: VIP behaviour and Happy Hour feature
+- **03:30** : Gameplay Demonstration: Critic behaviour
+- **04:10** : Gameplay Demonstration: Run that ends in a victory
+- **04:29** : Gameplay Demonstration: Run that ends in a defeat
+- **04:47** : UML Class Diagram
+- **08:55** : UML Sequence Diagram
